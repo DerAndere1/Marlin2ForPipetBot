@@ -43,7 +43,233 @@
 // Error margin to work around float imprecision
 constexpr float fslop = 0.0001;
 
-#if ENABLED(REALTIME_REPORTING_COMMANDS)
+extern bool relative_mode;
+
+extern xyze_pos_t current_position,  // High-level current tool position
+                  destination;       // Destination for a move
+
+// G60/G61 Position Save and Return
+#if SAVED_POSITIONS
+  extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3]; // TODO: Add support for HAS_I_AXIS
+  extern xyze_pos_t stored_position[SAVED_POSITIONS];
+#endif
+
+// Scratch space for a cartesian result
+extern xyz_pos_t cartes;
+
+// Until kinematics.cpp is created, declare this here
+#if IS_KINEMATIC
+  extern abce_pos_t delta;
+#endif
+
+#if HAS_ABL_NOT_UBL
+  extern feedRate_t xy_probe_feedrate_mm_s;
+  #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
+#elif defined(XY_PROBE_FEEDRATE)
+  #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_FEEDRATE)
+#else
+  #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
+#endif
+
+#if HAS_BED_PROBE
+  constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
+#endif
+
+/**
+ * Feed rates are often configured with mm/m
+ * but the planner and stepper like mm/s units.
+ */
+constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
+FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) {
+  float v = TERN0(HAS_Z_AXIS, homing_feedrate_mm_m.z);
+  #if DISABLED(DELTA)
+    NUM_AXIS_CODE(
+           if (a == X_AXIS) v = homing_feedrate_mm_m.x,
+      else if (a == Y_AXIS) v = homing_feedrate_mm_m.y,
+      else if (a == Z_AXIS) v = homing_feedrate_mm_m.z,
+      else if (a == I_AXIS) v = homing_feedrate_mm_m.i,
+      else if (a == J_AXIS) v = homing_feedrate_mm_m.j,
+      else if (a == K_AXIS) v = homing_feedrate_mm_m.k,
+      else if (a == U_AXIS) v = homing_feedrate_mm_m.u,
+      else if (a == V_AXIS) v = homing_feedrate_mm_m.v,
+      else if (a == W_AXIS) v = homing_feedrate_mm_m.w
+    );
+  #endif
+  return MMM_TO_MMS(v);
+}
+
+feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
+
+/**
+ * The default feedrate for many moves, set by the most recent move
+ */
+extern feedRate_t feedrate_mm_s;
+
+/**
+ * Feedrate scaling is applied to all G0/G1, G2/G3, and G5 moves
+ */
+extern int16_t feedrate_percentage;
+#define MMS_SCALED(V) ((V) * 0.01f * feedrate_percentage)
+
+// The active extruder (tool). Set with T<extruder> command.
+#if HAS_MULTI_EXTRUDER
+  extern uint8_t active_extruder;
+#else
+  constexpr uint8_t active_extruder = 0;
+#endif
+
+#if ENABLED(LCD_SHOW_E_TOTAL)
+  extern float e_move_accumulator;
+#endif
+
+#ifdef __IMXRT1062__
+  #define DEFS_PROGMEM
+#else
+  #define DEFS_PROGMEM PROGMEM
+#endif
+
+inline float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
+inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
+
+#define XYZ_DEFS(T, NAME, OPT) \
+  inline T NAME(const AxisEnum axis) { \
+    static const XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
+    return pgm_read_any(&NAME##_P[axis]); \
+  }
+XYZ_DEFS(float, base_min_pos,   MIN_POS);
+XYZ_DEFS(float, base_max_pos,   MAX_POS);
+XYZ_DEFS(float, base_home_pos,  HOME_POS);
+XYZ_DEFS(float, max_length,     MAX_LENGTH);
+XYZ_DEFS(int8_t, home_dir, HOME_DIR);
+
+inline float home_bump_mm(const AxisEnum axis) {
+  static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
+  return pgm_read_any(&home_bump_mm_P[axis]);
+}
+
+#if HAS_WORKSPACE_OFFSET
+  void update_workspace_offset(const AxisEnum axis);
+#else
+  inline void update_workspace_offset(const AxisEnum) {}
+#endif
+
+#if HAS_HOTEND_OFFSET
+  extern xyz_pos_t hotend_offset[HOTENDS];
+  void reset_hotend_offsets();
+#elif HOTENDS
+  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { 0 } };
+#else
+  constexpr xyz_pos_t hotend_offset[1] = { { 0 } };
+#endif
+
+#if HAS_SOFTWARE_ENDSTOPS
+
+  typedef struct {
+    bool _enabled, _loose;
+    bool enabled() { return _enabled && !_loose; }
+
+    xyz_pos_t min, max;
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      amin = -100000; amax = 100000; // "No limits"
+      #if HAS_SOFTWARE_ENDSTOPS
+        if (enabled()) switch (axis) {
+          case X_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
+            TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
+            break;
+          #if HAS_Y_AXIS
+            case Y_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
+              TERN_(MAX_SOFTWARE_ENDSTOP_Y, amax = max.y);
+              break;
+          #endif
+          #if HAS_Z_AXIS
+            case Z_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_Z, amin = min.z);
+              TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
+              break;
+          #endif
+          #if HAS_I_AXIS
+            case I_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_I, amin = min.i);
+              TERN_(MIN_SOFTWARE_ENDSTOP_I, amax = max.i);
+              break;
+          #endif
+          #if HAS_J_AXIS
+            case J_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_J, amin = min.j);
+              TERN_(MIN_SOFTWARE_ENDSTOP_J, amax = max.j);
+              break;
+          #endif
+          #if HAS_K_AXIS
+            case K_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_K, amin = min.k);
+              TERN_(MIN_SOFTWARE_ENDSTOP_K, amax = max.k);
+              break;
+          #endif
+          #if HAS_U_AXIS
+            case U_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_U, amin = min.u);
+              TERN_(MIN_SOFTWARE_ENDSTOP_U, amax = max.u);
+              break;
+          #endif
+          #if HAS_V_AXIS
+            case V_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_V, amin = min.v);
+              TERN_(MIN_SOFTWARE_ENDSTOP_V, amax = max.v);
+              break;
+          #endif
+          #if HAS_W_AXIS
+            case W_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_W, amin = min.w);
+              TERN_(MIN_SOFTWARE_ENDSTOP_W, amax = max.w);
+              break;
+          #endif
+          default: break;
+        }
+      #endif
+    }
+  } soft_endstops_t;
+
+  extern soft_endstops_t soft_endstop;
+  void handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos);
+  void handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos);
+  void apply_motion_limits(xyz_pos_t &target);
+  void update_software_endstops(const AxisEnum axis
+    #if HAS_HOTEND_OFFSET
+      , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
+    #endif
+  );
+  #define SET_SOFT_ENDSTOP_LOOSE(loose) (soft_endstop._loose = loose)
+
+#else // !HAS_SOFTWARE_ENDSTOPS
+
+  typedef struct {
+    bool enabled() { return false; }
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      // No limits
+      amin = current_position[axis] - 1000;
+      amax = current_position[axis] + 1000;
+    }
+  } soft_endstops_t;
+  extern soft_endstops_t soft_endstop;
+  #define apply_motion_limits(V)        NOOP
+  #define update_software_endstops(...) NOOP
+  #define SET_SOFT_ENDSTOP_LOOSE(V)     NOOP
+
+#endif // !HAS_SOFTWARE_ENDSTOPS
+
+void report_real_position();
+void report_current_position();
+void report_current_position_projected();
+
+#if ENABLED(AUTO_REPORT_POSITION)
+  #include "../libs/autoreport.h"
+  struct PositionReport { static void report() { report_current_position_projected(); } };
+  extern AutoReporter<PositionReport> position_auto_reporter;
+#endif
+
+#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
   #define HAS_GRBL_STATE 1
   /**
    * Machine states for GRBL or TinyG
