@@ -30,6 +30,9 @@ Configuration
   - https://github.com/MarlinFirmware/Configurations
     Example configurations for several printer models.
 
+  - https://github.com/DerAndere1/Marlin2ForPipetBot/tree/Marlin2ForPipetBot/config
+    Example configurations for several multi-axis CNC machines, inlcuding 3D printers
+
   - https://youtu.be/3gwWVFtdg-4
     A good 20-minute overview of Marlin configuration by Tom Sanladerer.
     (Applies to Marlin 1.0.x, so Jerk and Acceleration should be halved.)
@@ -44,9 +47,9 @@ Getting Help
     The Marlin Discussion Forum is a great place to get help from other Marlin
     users who may have experienced similar issues to your own.
 
-  - https://github.com/MarlinFirmware/Marlin/issues
+  - https://github.com/DerAndere1/Marlin2ForPipetBot/issues
     With a free GitHub account you can provide us with feedback, bug reports,
-    and feature requests via the Marlin Issue Queue.
+    and feature requests via the Marlin2ForPipetBot Issue Queue.
 
 Contributing
 
