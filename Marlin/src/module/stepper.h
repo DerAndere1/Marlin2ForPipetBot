@@ -357,11 +357,6 @@ constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t einde
       FREEZE_CRUISE
     };
   #endif
-
-// Pause resume ramping constants
-#if ENABLED(REALTIME_RAMPING)
-  #define MIN_REALTIME_RAMPING_FACTOR   500
-  #define MAX_REALTIME_RAMPING_FACTOR 10000
 #endif
 
 //
