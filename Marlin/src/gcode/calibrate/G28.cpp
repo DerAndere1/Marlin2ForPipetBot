@@ -103,6 +103,7 @@
       #endif
     #endif
 
+
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
         NUM_AXIS_LIST(
