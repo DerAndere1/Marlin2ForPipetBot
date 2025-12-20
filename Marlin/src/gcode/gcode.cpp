@@ -230,13 +230,12 @@ void GcodeSuite::get_destination_from_command() {
     constexpr bool skip_move = false;
   #endif
   
-   #if ENABLED(SCALE_WORKSPACE)
+  #if ENABLED(SCALE_WORKSPACE)
     const bool scaling_is_active = !(NEAR(scaling_factor_x, 1.0f) && NEAR(scaling_factor_y, 1.0f) && NEAR(scaling_factor_z, 1.0f));
   #endif
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ((seen[i] = parser.seenval(AXIS_CHAR(i)))) {
-      const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move) {
         #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
           motion.raw_destination[i] = motion.position[i];
@@ -245,6 +244,7 @@ void GcodeSuite::get_destination_from_command() {
         #endif
       }
       else {
+        const float v = parser.value_axis_units((AxisEnum)i);
         #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
           if ((TERN1(SCALE_WORKSPACE, !scaling_is_active)) && TERN1(ROTATE_WORKSPACE, NEAR_ZERO(rotation_angle))) {
             motion.raw_destination[i] = axis_is_relative(AxisEnum(i)) ? motion.position[i] + v : motion.logical_to_native(v, i);
@@ -264,10 +264,7 @@ void GcodeSuite::get_destination_from_command() {
         }
       #else
         motion.destination[i] = motion.position[i];
-      else {
-        const float v = parser.value_axis_units((AxisEnum)i);
-        motion.destination[i] = axis_is_relative((AxisEnum)i) ? motion.position[i] + v : motion.logical_to_native(v, (AxisEnum)i);
-      }
+      #endif
     }
   }
 
