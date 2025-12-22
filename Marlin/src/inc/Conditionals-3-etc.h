@@ -646,7 +646,7 @@
 #if ANY(SCARA, AXEL_TPARA)
   #define IS_SCARA 1              // Linear Motion derives from SCARA kinematics
 #endif
-#if ANY(IS_SCARA, DELTA, POLARGRAPH, POLAR, PENTA_AXIS_TRT, PENTA_AXIS_HT)
+#if ANY(IS_SCARA, DELTA, POLARGRAPH, POLAR, PENTA_AXIS_TRT, PENTA_AXIS_HT, PENTA_AXIS_HH)
   #define IS_KINEMATIC 1          // Linear Motion derives from kinematic conversion and segmentation
 #else
   #define IS_CARTESIAN 1          // Linear Motion requires no segmentation
@@ -655,7 +655,7 @@
   #endif
 #endif
 
-#if ANY(PENTA_AXIS_TRT, PENTA_AXIS_HT)
+#if ANY(PENTA_AXIS_TRT, PENTA_AXIS_HT, PENTA_AXIS_HH)
   #define HAS_TOOL_CENTERPOINT_CONTROL 1
 #endif
 
