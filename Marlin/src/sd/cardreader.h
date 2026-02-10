@@ -335,6 +335,11 @@ public:
     static AutoReporter<AutoReportSD> auto_reporter;
   #endif
 
+  // IK pre-processor temp file tracking
+  #if ENABLED(IK_PREPROCESS)
+    static bool ik_temp_file_active;
+  #endif
+
 private:
   //
   // Mount in steps without blocking. Call until it returns true.
