@@ -1365,6 +1365,7 @@
   // Calibration correction - compensates for mechanical errors
   // Use M667 to set Fourier coefficients from Rep5x Calibrator tool
   #define CALIBRATION_CORRECTION
+  #define IK_PREPROCESS
 #endif
 
 // @section machine
