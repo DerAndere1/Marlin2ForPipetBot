@@ -66,6 +66,10 @@
   #include "../feature/babystep.h"
 #endif
 
+#if ENABLED(ABORT_ON_ENDSTOP) && HAS_CUTTER
+  #include "../feature/spindle_laser.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -1405,12 +1409,11 @@ void Motion::restore_feedrate_and_scaling() {
     if (DEBUGGING(LEVELING))
       SERIAL_ECHOLNPGM("Axis ", C(AXIS_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
   }
-  /**
-   * Constrain moves to minimum software endstops. Abort, if desired.
-   */
-  void handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
-    #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
-      if (planner.abort_on_software_endstop) {
+
+
+  void Motion::handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
+    #if ENABLED(ABORT_ON_ENDSTOP)
+      if (planner.abort_on_endstop) {
         if (target_pos[axis] < soft_endstop.min[axis]) {
           NOLESS(target_pos[axis], soft_endstop.min[axis]);
           SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);
@@ -1430,12 +1433,9 @@ void Motion::restore_feedrate_and_scaling() {
     #endif
   }
 
-  /**
-   * Constrain moves to maximum software endstops. Abort, if desired.
-   */
-  void handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
-    #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
-      if (planner.abort_on_software_endstop) {
+  void Motion::handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
+    #if ENABLED(ABORT_ON_ENDSTOP)
+      if (planner.abort_on_endstop) {
         if (target_pos[axis] > soft_endstop.max[axis]) {
           NOMORE(target_pos[axis], soft_endstop.max[axis]);
           SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);
