@@ -1646,6 +1646,8 @@ void setup() {
 
   #if ENABLED(PARKING_EXTRUDER)
     SETUP_RUN(pe_solenoid_init());
+  #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+    SETUP_RUN(mst_init());
   #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
     SETUP_RUN(mpe_settings_init());
   #elif ENABLED(SWITCHING_TOOLHEAD)

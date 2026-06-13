@@ -704,6 +704,12 @@ class Temperature {
       static uint8_t coolerfan_speed;
     #endif
 
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      static bool heating_enabled;
+    #else
+      static constexpr bool heating_enabled = true;
+    #endif
+
     #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
       static bool allow_cold_extrude_override;
       static void set_menu_cold_override(const bool allow) { allow_cold_extrude_override = allow; }
