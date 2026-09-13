@@ -644,7 +644,7 @@ void GcodeSuite::G28() {
     TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
 
     // Restore the active tool after homing
-    #if  ALL(HAS_TOOLCHANGE, TOOLCHANGE_HOMING_USE_T0) && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
+    #if ALL(HAS_TOOLCHANGE, TOOLCHANGE_HOMING_USE_T0) && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
       tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
     #endif
 

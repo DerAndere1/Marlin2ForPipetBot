@@ -875,6 +875,11 @@ void Motion::get_cartesian_from_steppers() {
       cartes.v = planner.get_axis_position_mm(V_AXIS),
       cartes.w = planner.get_axis_position_mm(W_AXIS)
     );
+    //#if HAS_HOTEND_OFFSET
+    //if (TERN1(HAS_TOOL_LENGTH_COMPENSATION, simple_tool_length_compensation))  {
+    //  cartes += active_hotend_offset());
+    //}
+    //#endif
   #endif
 }
 
@@ -3080,12 +3085,16 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
   #elif ENABLED(DELTA)
     position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
   #else
-    motion.position[axis] = SUM_TERN(HAS_HOME_OFFSET, motion.base_home_pos(axis), motion.home_offset[axis]);
+    position[axis] = SUM_TERN(HAS_HOME_OFFSET, motion.base_home_pos(axis), motion.home_offset[axis]);
+    #if HAS_HOTEND_OFFSET
+      if (TERN1(HAS_TOOL_LENGTH_COMPENSATION, simple_tool_length_compensation) || TERN0(HAS_TOOL_CENTERPOINT_CONTROL, tool_centerpoint_control)) {
+        position[axis] += active_hotend_offset()[axis];
+      }
+    #endif
+
     #if ANY(PENTA_AXIS_TRT, PENTA_AXIS_HT, PENTA_AXIS_HH)
       // TODO (DerAndere): Introduce a function like scara_set_axis_is_at_home.
       delta[axis] = position[axis];
-      if (axis == J_AXIS)
-        delta = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
     #endif
   #endif
 
@@ -3112,7 +3121,7 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
 
   TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
 
-  TERN_(HAS_WORKSPACE_OFFSET, workspace_offset[axis] = 0);
+  //TERN_(HAS_WORKSPACE_OFFSET, workspace_offset[axis] = 0);
 
   if (DEBUGGING(LEVELING)) {
     #if HAS_HOME_OFFSET
