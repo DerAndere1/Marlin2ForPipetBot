@@ -1160,7 +1160,7 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
    * - XY, etc. move simultaneously in a coordinated manner.
    * - Before returning, wait for the planner buffer to empty.
    */
-  void do_blocking_coordinated_move_to(NUM_AXIS_ARGS_(const float) const feedRate_t fr_mm_s/*=0.0f*/) {
+  void Motion::do_blocking_coordinated_move_to(NUM_AXIS_ARGS_(const float) const feedRate_t fr_mm_s/*=0.0f*/) {
     DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
     #if NUM_AXES
       if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS_LC());
@@ -3121,7 +3121,7 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
 
   TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
 
-  //TERN_(HAS_WORKSPACE_OFFSET, workspace_offset[axis] = 0);
+  TERN_(HAS_WORKSPACE_OFFSET, workspace_offset[axis] = 0);
 
   if (DEBUGGING(LEVELING)) {
     #if HAS_HOME_OFFSET

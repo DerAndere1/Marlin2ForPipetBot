@@ -641,7 +641,7 @@ public:
   #endif
 
   #if ENABLED(QUICK_HOME_SECONDARY_AXES) && !IS_KINEMATIC
-    static void do_blocking_coordinated_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s=0.0f);
+    static void do_blocking_coordinated_move_to(NUM_AXIS_ARGS_(const float) const feedRate_t fr_mm_s=0.0f);
   #endif
 
   //
