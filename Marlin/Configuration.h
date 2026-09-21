@@ -330,21 +330,24 @@
   //#define BALANCED_DIFFERENTIAL_EXTRUDER
 #endif
 
- /**
+/**
  * Switching Toolhead - Manual
  *
- * Support for manual swapping of toolheads, such as the
- * Wham Bam MUTANT. Toolheads are manually docked/locked,
- * and all use the same heater/sensor pins when switched.
+ * Support for manual swapping of toolheads, such as the Wham Bam MUTANT.
+ * Toolheads are manually docked/locked and all hotends use the same heater/sensor pins when switched.
+ * With ADVANCED_PAUSE_FEATURE enabled, the machine pauses and after the new tool is installed, the user 
+ * can continue via the display or by sending command M108. 
  *
- * !! TOOL TYPE ORDERING MATTERS !!
+ * Tool type ordering matters:
  *  1. Hotends (Set TEMP_SENSOR_n)
  *  2. Non-Hotend Extruder (no TEMP_SENSOR)
- *  3. Unpowered
- *  4. Laser/Spindle
- *
+ *  3. Laser (Requires LASER_FEATURE)
+ *  4. Spindle tools (Requires SPINDLE_FEATURE)
+ * 
  * You may also desire to enable/check the following:
+ *  - TOOLS
  *  - HOTEND_OFFSET_[XYZ]
+ *  - EXTRUDERS
  *  - Tool Change settings in Configuration_adv.h
  */
 //#define MANUAL_SWITCHING_TOOLHEAD
@@ -364,10 +367,13 @@
    * Define the names of Hotends/Unpowered tools. Optional.
    * Default to "Hotend #"/"Tool #" as appropriate.
    */
-  //#define TOOL_NAME_0 "Tool 0"
-  //#define TOOL_NAME_1 "Tool 1"
-  //#define TOOL_NAME_2 "Tool 2"
-  //#define TOOL_NAME_3 "Tool 3"
+  #define TOOL_NAME_0 "Tool 0"
+  #define TOOL_NAME_1 "Tool 1"
+  #define TOOL_NAME_2 "Tool 2"
+  #define TOOL_NAME_3 "Tool 3"
+
+  // Keep the selected tool in EEPROM. Must be committed/saved with M500 like other settings.
+  #define MAN_ST_EEPROM_STORAGE
 #endif
 
 /**
