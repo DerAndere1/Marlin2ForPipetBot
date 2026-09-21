@@ -96,6 +96,7 @@ Currently, no `H` word is supported. The tool offsets (set by G10) for the curre
 ### G49 (Cancel tool length compensation)
 
 Disable tool length compensation (G43) and disable tool centerpoint control (G43.4). Enter direct joint control mode (default). Requires 'DEFAULT_TOOL_LENGTH_COMPENSATION'.
+
 See the following references:
 - https://linuxcnc.org/docs/2.6/html/gcode/gcode.html#sec:G43
 - https://www.haascnc.com/service/codes-settings.type=gcode.machine=mill.value=G49.html
@@ -103,6 +104,7 @@ See the following references:
 ### G51 (Workspace scaling)
 
 Set workspace scaling. Requires `SCALE_WORKSPACE`.
+
 See the following references:
 - https://www.haascnc.com/service/codes-settings.type=gcode.machine=mill.value=G51.html
 
@@ -121,20 +123,68 @@ See the following references:
 ### G69 (Cancel workpace rotation)
 
 Cancel workspace rotation. Requires `ROTATE_WORKSPACE`.
+
 See the following references:
 - https://www.haascnc.com/service/codes-settings.type=gcode.machine=mill.value=G69.html
 
 ### G93 (inverse time feedrate mode)
 
 Switch to inverse time feedrate mode. Requires FEEDRATE_MODE_SUPPORT.
+
 See the following references:
 - https://www.linuxcnc.org/docs/html/gcode/g-code.html#gcode:g93-g94-g95
 
 ### G94 (units per minute feedrate mode)
 
 Switch to units per minute feedrate mode (default). Requires FEEDRATE_MODE_SUPPORT.
+
 See the following references:
 - https://www.linuxcnc.org/docs/html/gcode/g-code.html#gcode:g93-g94-g95
+
+### G425 (Calibration)
+
+Calibrate backlash compensation and/or tool offsets with a calibration object. Requires `CALIBRATION_GCODE`.
+
+#### Usage
+
+Examples:
+- `G425;  Calibrate backlash and tool offsets for all tools`
+- `G425 T1;  Calibrate tool offsets for tool 1`
+- `G425 T1 Z;  Calibrate tool length of tool 1 only`
+
+#### Parameters
+
+##### `B`
+
+Perform calibration of backlash only.
+
+#### `T<tool index>`
+
+Perform calibration of tool offset for the tool with the specified tool index.
+
+#### `V`
+
+Probe object and print position, error, backlash and hotend offset.
+
+#### `U`
+
+Uncertainty, how far in xy to start probe away from the object (mm).
+
+#### `L`
+
+Tool length uncertainty, how far in z to start probe away from the object (mm).
+
+#### `L`
+
+With parameter T: Calibrate Z hotend offset only.
+
+#### `F`
+
+With parameter T: Feedrate for the measurement move.
+
+#### `Z`
+
+With parameter T: Calibrate tool length only.
 
 ### M665 (PENTA_AXIS configuration)
 
@@ -298,25 +348,49 @@ Allowed values: [A4988, A5984, DRV8825, LV8729, L6470, L6474, POWERSTEP01, TB656
 ### `AXIS4_ROTATES`
 
 `AXIS4_ROTATES`, `AXIS5_ROTATES`, `AXIS6_ROTATES`, `AXIS7_ROTATES`, `AXIS8_ROTATES`, `AXIS9_ROTATES`:
+
 If enabled, the corresponding axis is a rotational axis for which positions are specified in angular degrees. In units-per-minute feedrate mode (G94),
 feedrate for moves involving only rotational axes is interpreted in angular degrees per minute.
 
 ### `AXIS4_NAME`
 
 `AXIS4_NAME`, `AXIS5_NAME`, `AXIS6_NAME`, `AXIS7_NAME`, `AXIS8_NAME`, `AXIS9_NAME`:
+
 Axis codes for additional axes:
 This defines the axis code that is used in G-code commands to reference a specific axis. Conventional axis names are as follows:
-   * 'A' for rotational axis parallel to X
-   * 'B' for rotational axis parallel to Y
-   * 'C' for rotational axis parallel to Z
-   * 'U' for secondary linear axis parallel to X
-   * 'V' for secondary linear axis parallel to Y
-   * 'W' for secondary linear axis parallel to Z
+
+- 'A' for rotational axis parallel to X
+- 'B' for rotational axis parallel to Y
+- 'C' for rotational axis parallel to Z
+- 'U' for secondary linear axis parallel to X
+- 'V' for secondary linear axis parallel to Y
+- 'W' for secondary linear axis parallel to Z
 
 Regardless of the settings, firmware-internal axis names (joints names), are
 I (AXIS4), J (AXIS5), K (AXIS6), U (AXIS7), V (AXIS8), W (AXIS9).
 
 Allowed values: ['A', 'B', 'C', 'U', 'V', 'W'] 
+
+### `MANUAL_SWITCHING_TOOLHEAD`
+
+Support for manual swapping of toolheads, such as the Wham Bam MUTANT.
+Toolheads are manually docked/locked and all hotends use the same heater/sensor pins when switched.
+With ADVANCED_PAUSE_FEATURE enabled, the machine pauses and after the new tool is installed, the user 
+can continue via the display or by sending command M108.
+
+Tool type ordering matters:
+
+1. Hotends (Set TEMP_SENSOR_n)
+2. Non-Hotend Extruder (no TEMP_SENSOR)
+3. Laser (Requires LASER_FEATURE)
+4. Spindle tools (Requires SPINDLE_FEATURE)
+
+You may also desire to enable/check the following:
+
+- TOOLS
+- HOTEND_OFFSET_[XYZ]
+- EXTRUDERS
+- Tool Change settings in Configuration_adv.h
 
 ### `ARTICULATED_ROBOT_ARM`
 
@@ -467,6 +541,10 @@ The tools with the highest TOOL index are spindle tools. Adds several Spindle/La
 ### `LASER_FEATURE`
 
 The tool with a tool index (EXTRUDERS + 1) is a laser. Adds several Spindle/Laser-related G-codes. M222 is currently not enabled. `LASER_FEATURE` compatible with `SPINDLE_FEATURE` and `EXTRUDERS` <= 8.
+
+### `CALIBRATION_GCODE`
+
+Use  G425 to Perform calibration of backlash compensation and/or tool offsets with a calibration object.
 
 ## Marlin2ForPipetBot Branch
 
