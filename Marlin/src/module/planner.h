@@ -653,7 +653,7 @@ class Planner {
     static xyze_float_t previous_speed;
 
     /**
-     * Nominal speed of previous path line segment (mm/s)^2
+     * Nominal speed of previous path line segment (mm/sec)
      */
     static float previous_nominal_speed;
 
