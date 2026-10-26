@@ -421,10 +421,6 @@ void GcodeSuite::G28() {
       motion.tool_centerpoint_control = false;
     #endif
 
-    #if ENABLED(CNC_COORDINATE_SYSTEMS)
-      const bool old_coordinate_system = active_coordinate_system;
-    #endif
-
     // Home with tool 0 active, if specified
     #if ALL(HAS_TOOLCHANGE, TOOLCHANGE_HOMING_USE_T0)
       #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
