@@ -121,6 +121,9 @@ vc-fileutils.settings
 !.vscode/extensions.json
 *.code-workspace
 
+# Clangd
+compile_commands.json
+
 # Simulation files
 imgui.ini
 eeprom.dat
