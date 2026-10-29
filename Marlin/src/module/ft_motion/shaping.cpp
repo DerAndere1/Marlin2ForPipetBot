@@ -131,6 +131,9 @@ void AxisShaping::set_axis_shaping_A(
     #if ENABLED(FTM_SHAPER_MZV)
       case ftMotionShaper_MZV: {
         max_i = 2U;
+        // Modified Zero Vibration shaper by Dmitry "dmbutyugin", 
+        // derived from formulae in http://singhose.marc.gatech.edu/courses/2998/labs/NegativeSNA.pdf and 
+        // https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0276669.
         // Impulses are 0.375 periods apart (0.75 over the shaper), so the per-impulse
         // damping factor is exp(-0.75 * zeta * PI / df) == K^0.75, as in Klipper's
         // get_mzv_shaper (K = exp(-2t * zeta * PI / ((n-1) * df)), t = 0.75, n = 3).
