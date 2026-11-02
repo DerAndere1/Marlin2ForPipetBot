@@ -400,7 +400,7 @@
 
 /**
  * Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
- * The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+ * The offset has to be X=0, Y=0 , Z=0 for the extruder 0 hotend (default extruder).
  * For the other hotends it is their distance from the extruder 0 hotend.
  * Require a value for each tool, including extruders. For machines with non-extruder TOOLS, tool 0 can be the empty tool holder so that the gauge line can be used as the reference.
  */
