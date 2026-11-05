@@ -1131,12 +1131,12 @@
  */
 #define FT_MOTION
 #if ENABLED(FT_MOTION)
-  //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
+  #define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
   //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
 
   //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
   #if DISABLED(NO_STANDARD_MOTION)
-    //#define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+    #define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
   #endif
 
   //#define FTM_DYNAMIC_FREQ                    // Enable for linear adjustment of XY shaping frequency according to Z or E
@@ -1145,7 +1145,7 @@
   #endif
 
   // Disable unused shapers if you need more free space
-  //#define FTM_SHAPER_ZV
+  #define FTM_SHAPER_ZV
   //#define FTM_SHAPER_ZVD
   //#define FTM_SHAPER_ZVDD
   //#define FTM_SHAPER_ZVDDD
@@ -1177,7 +1177,7 @@
   #define FTM_SHAPING_ZETA_E            0.03f   // Zeta used by input shapers for E axis
   #define FTM_SHAPING_V_TOL_E           0.05f   // Vibration tolerance used by EI input shapers for E axis
 
-  #define FTM_SMOOTHING                       // Smoothing can reduce artifacts and make steppers quieter
+  //#define FTM_SMOOTHING                       // Smoothing can reduce artifacts and make steppers quieter
                                                 // on sharp corners, but too much will round corners.
   #if ENABLED(FTM_SMOOTHING)
     #define FTM_MAX_SMOOTHING_TIME      0.10f   // (s) Maximum smoothing time. Higher values consume more RAM.
@@ -1201,7 +1201,7 @@
    */
   #define FTM_CONSTANT_JOLT
   #if ENABLED(FTM_CONSTANT_JOLT)
-    #define FTM_DEFAULT_JOLT 250.0f         // (m/s³) Default jolt for constant-jolt trajectory.
+    #define FTM_DEFAULT_JOLT 50.0f         // (m/s³) Default jolt for constant-jolt trajectory.
                                             // Higher values print faster at the cost of increased resonance and extruder stress
   #endif
 
@@ -2388,7 +2388,7 @@
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
 //#define LIN_ADVANCE
-#if ENABLED(LIN_ADVANCE)
+#if ANY(LIN_ADVANCE, FT_MOTION)
   #if ENABLED(DISTINCT_E_FACTORS)
     #define ADVANCE_K { 0.22 }    // (mm) Compression length per 1mm/s extruder speed, per extruder
   #else

@@ -1129,14 +1129,14 @@
  * Enable/disable and set parameters with G-code M493.
  * See ft_types.h for named values used by FTM options.
  */
-//#define FT_MOTION
+#define FT_MOTION
 #if ENABLED(FT_MOTION)
-  //#define FTM_IS_DEFAULT_MOTION                 // Use FT Motion as the factory default?
+  #define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
   //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
 
   //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
   #if DISABLED(NO_STANDARD_MOTION)
-    //#define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+    #define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
   #endif
 
   //#define FTM_DYNAMIC_FREQ                    // Enable for linear adjustment of XY shaping frequency according to Z or E
@@ -1146,12 +1146,12 @@
 
   // Disable unused shapers if you need more free space
   #define FTM_SHAPER_ZV
-  #define FTM_SHAPER_ZVD
-  #define FTM_SHAPER_ZVDD
-  #define FTM_SHAPER_ZVDDD
-  #define FTM_SHAPER_EI
-  #define FTM_SHAPER_2HEI
-  #define FTM_SHAPER_3HEI
+  //#define FTM_SHAPER_ZVD
+  //#define FTM_SHAPER_ZVDD
+  //#define FTM_SHAPER_ZVDDD
+  //#define FTM_SHAPER_EI
+  //#define FTM_SHAPER_2HEI
+  //#define FTM_SHAPER_3HEI
   #define FTM_SHAPER_MZV
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
@@ -1189,7 +1189,7 @@
                                                 //     smoothing acceleration peaks, which may also smooth curved surfaces.
   #endif
 
-  #define FTM_POLYS                             // Disable POLY5/6 to save ~3k of Flash. Preserves TRAPEZOIDAL.
+  //#define FTM_POLYS                             // Disable POLY5/6 to save ~3k of Flash. Preserves TRAPEZOIDAL.
   #if ENABLED(FTM_POLYS)
     #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
   #endif
@@ -1199,15 +1199,15 @@
    * Jolt is the rate of change of acceleration, not related to Marlin's "classic jerk."
    * Ramps acceleration gradually so max acceleration is limited by max speed and distance traveled.
    */
-  //#define FTM_CONSTANT_JOLT
+  #define FTM_CONSTANT_JOLT
   #if ENABLED(FTM_CONSTANT_JOLT)
-    #define FTM_DEFAULT_JOLT 250.0f         // (m/s³) Default jolt for constant-jolt trajectory.
+    #define FTM_DEFAULT_JOLT 50.0f         // (m/s³) Default jolt for constant-jolt trajectory.
                                             // Higher values print faster at the cost of increased resonance and extruder stress
   #endif
 
   // Block acceleration profile
   // :[ 'TRAPEZOIDAL', 'POLY5', 'POLY6', 'CONSTANT_JOLT' ]
-  #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL   //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+  #define FTM_TRAJECTORY_TYPE CONSTANT_JOLT   //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
                                             //         POLY5: Like POLY6 with 1.5x but uses less CPU. Requires FTM_POLYS.
                                             //         POLY6: Continuous Acceleration (aka S_CURVE). Requires FTM_POLYS.
                                             // CONSTANT_JOLT: 7-phase S-curve. Requires FTM_CONSTANT_JOLT.
@@ -1242,143 +1242,6 @@
   #endif
 
 #endif // FT_MOTION
-
-/**
- * Input Shaping
- *
- * Zero Vibration (ZV) Input Shaping for X and/or Y movements.
- *
- * This option uses a lot of SRAM for the step buffer. The buffer size is
- * calculated automatically from SHAPING_FREQ_[XYZ], DEFAULT_AXIS_STEPS_PER_UNIT,
- * DEFAULT_MAX_FEEDRATE and ADAPTIVE_STEP_SMOOTHING. The default calculation can
- * be overridden by setting SHAPING_MIN_FREQ and/or SHAPING_MAX_FEEDRATE.
- * The higher the frequency and the lower the feedrate, the smaller the buffer.
- * If the buffer is too small at runtime, input shaping will have reduced
- * effectiveness during high speed movements.
- *
- * Tune with M593 D<factor> F<frequency>
- */
-//#define INPUT_SHAPING_X
-//#define INPUT_SHAPING_Y
-//#define INPUT_SHAPING_Z
-#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
-  #if ENABLED(INPUT_SHAPING_X)
-    #define SHAPING_FREQ_X  40.0        // (Hz) The default dominant resonant frequency on the X axis.
-    #define SHAPING_ZETA_X   0.15       // Damping ratio of the X axis (range: 0.0 = no damping to 1.0 = critical damping).
-  #endif
-  #if ENABLED(INPUT_SHAPING_Y)
-    #define SHAPING_FREQ_Y  40.0        // (Hz) The default dominant resonant frequency on the Y axis.
-    #define SHAPING_ZETA_Y   0.15       // Damping ratio of the Y axis (range: 0.0 = no damping to 1.0 = critical damping).
-  #endif
-  #if ENABLED(INPUT_SHAPING_Z)
-    #define SHAPING_FREQ_Z  40.0        // (Hz) The default dominant resonant frequency on the Z axis.
-    #define SHAPING_ZETA_Z   0.15       // Damping ratio of the Z axis (range: 0.0 = no damping to 1.0 = critical damping).
-  #endif
-  //#define SHAPING_MIN_FREQ  20.0      // (Hz) By default the minimum of the shaping frequencies. Override to affect SRAM usage.
-  //#define SHAPING_MAX_STEPRATE 10000  // By default the maximum total step rate of the shaped axes. Override to affect SRAM usage.
-  //#define SHAPING_MENU                // Add a menu to the LCD to set shaping parameters.
-#endif
-
-#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z, FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
-  //#define RESONANCE_TEST              // Sine sweep motion for resonance study
-#endif
-
-// @section motion
-
-#define AXIS_RELATIVE_MODES { false, false, false, false, false, false }
-
-// Add a Duplicate option for well-separated conjoined nozzles
-//#define MULTI_NOZZLE_DUPLICATION
-
-// By default stepper drivers require an active-HIGH signal but some high-power drivers require an active-LOW signal to step.
-#define STEP_STATE_X HIGH
-#define STEP_STATE_Y HIGH
-#define STEP_STATE_Z HIGH
-#define STEP_STATE_I HIGH
-#define STEP_STATE_J HIGH
-#define STEP_STATE_K HIGH
-#define STEP_STATE_U HIGH
-#define STEP_STATE_V HIGH
-#define STEP_STATE_W HIGH
-#define STEP_STATE_E HIGH
-
-/**
- * Idle Stepper Shutdown
- * Enable DISABLE_IDLE_* to shut down axis steppers after an idle period.
- * The default timeout duration can be overridden with M18 and M84. Set to 0 for No Timeout.
- */
-#define DEFAULT_STEPPER_TIMEOUT_SEC 120
-#define DISABLE_IDLE_X
-#define DISABLE_IDLE_Y
-#define DISABLE_IDLE_Z    // Disable if the nozzle could fall onto your printed part!
-#define DISABLE_IDLE_I
-#define DISABLE_IDLE_J
-#define DISABLE_IDLE_K
-#define DISABLE_IDLE_U
-#define DISABLE_IDLE_V
-#define DISABLE_IDLE_W
-#define DISABLE_IDLE_E    // Shut down all idle extruders
-
-// Default Minimum Feedrates for printing and travel moves
-#define DEFAULT_MINIMUMFEEDRATE       0.0     // (mm/s. °/s for rotational-only moves) Minimum feedrate. Set with M205 S.
-#define DEFAULT_MINTRAVELFEEDRATE     0.0     // (mm/s. °/s for rotational-only moves) Minimum travel feedrate. Set with M205 T.
-
-// Minimum time that a segment needs to take as the buffer gets emptied
-#define DEFAULT_MINSEGMENTTIME        20000   // (µs) Set with M205 B.
-
-// Slow down the machine if the lookahead buffer is (by default) half full.
-// Increase the slowdown divisor for larger buffer sizes.
-#define SLOWDOWN
-#if ENABLED(SLOWDOWN)
-  #define SLOWDOWN_DIVISOR 2
-#endif
-
-/**
- * XY Frequency limit
- * Reduce resonance by limiting the frequency of small zigzag infill moves.
- * See https://hydraraptor.blogspot.com/2010/12/frequency-limit.html
- * Use M201 F<freq> S<min%> to change limits at runtime.
- */
-//#define XY_FREQUENCY_LIMIT      10 // (Hz) Maximum frequency of small zigzag infill moves. Set with M201 F<hertz>.
-#ifdef XY_FREQUENCY_LIMIT
-  #define XY_FREQUENCY_MIN_PERCENT 5 // (%) Minimum FR percentage to apply. Set with M201 S<min%>.
-#endif
-
-//
-// Backlash Compensation
-// Adds extra movement to axes on direction-changes to account for backlash.
-//
-//#define BACKLASH_COMPENSATION
-#if ENABLED(BACKLASH_COMPENSATION)
-  // Define values for backlash distance and correction.
-  // If BACKLASH_GCODE is enabled these values are the defaults.
-  #define BACKLASH_DISTANCE_MM { 0, 0, 0 } // (linear=mm, rotational=°) One value for each linear axis
-  #define BACKLASH_CORRECTION    0.0       // 0.0 = no correction; 1.0 = full correction
-
-  // Add steps for motor direction changes on CORE kinematics
-  //#define CORE_BACKLASH
-
-  // Set BACKLASH_SMOOTHING_MM to spread backlash correction over multiple segments
-  // to reduce print artifacts. (Enabling this is costly in memory and computation!)
-  //#define BACKLASH_SMOOTHING_MM 3 // (mm)
-
-  // Add runtime configuration and tuning of backlash values (M425)
-  //#define BACKLASH_GCODE
-
-  #if ENABLED(BACKLASH_GCODE)
-    // Measure the Z backlash when probing (G29) and set with "M425 Z"
-    #define MEASURE_BACKLASH_WHEN_PROBING
-
-    #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-      // When measuring, the probe will move up to BACKLASH_MEASUREMENT_LIMIT
-      // mm away from point of contact in BACKLASH_MEASUREMENT_RESOLUTION
-      // increments while checking for the contact to be broken.
-      #define BACKLASH_MEASUREMENT_LIMIT       0.5   // (mm)
-      #define BACKLASH_MEASUREMENT_RESOLUTION  0.005 // (mm)
-      #define BACKLASH_MEASUREMENT_FEEDRATE    Z_PROBE_FEEDRATE_SLOW // (mm/min)
-    #endif
-  #endif
-#endif
 
 /**
  * Automatic backlash, position, and hotend offset calibration
@@ -2397,7 +2260,7 @@
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
 //#define LIN_ADVANCE
-#if ENABLED(LIN_ADVANCE)
+#if ANY(LIN_ADVANCE, FT_MOTION)
   #if ENABLED(DISTINCT_E_FACTORS)
     #define ADVANCE_K { 0.22 }    // (mm) Compression length per 1mm/s extruder speed, per extruder
   #else

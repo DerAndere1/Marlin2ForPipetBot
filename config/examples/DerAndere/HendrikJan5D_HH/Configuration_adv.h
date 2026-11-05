@@ -1129,14 +1129,14 @@
  * Enable/disable and set parameters with G-code M493 and M494.
  * See ft_types.h for named values used by FTM options.
  */
-//#define FT_MOTION
+#define FT_MOTION
 #if ENABLED(FT_MOTION)
-  //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
+  #define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
   //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
 
   //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
   #if DISABLED(NO_STANDARD_MOTION)
-    //#define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+    #define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
   #endif
 
   //#define FTM_DYNAMIC_FREQ                    // Enable for linear adjustment of XY shaping frequency according to Z or E
@@ -1146,12 +1146,12 @@
 
   // Disable unused shapers if you need more free space
   #define FTM_SHAPER_ZV
-  #define FTM_SHAPER_ZVD
-  #define FTM_SHAPER_ZVDD
-  #define FTM_SHAPER_ZVDDD
-  #define FTM_SHAPER_EI
-  #define FTM_SHAPER_2HEI
-  #define FTM_SHAPER_3HEI
+  //#define FTM_SHAPER_ZVD
+  //#define FTM_SHAPER_ZVDD
+  //#define FTM_SHAPER_ZVDDD
+  //#define FTM_SHAPER_EI
+  //#define FTM_SHAPER_2HEI
+  //#define FTM_SHAPER_3HEI
   #define FTM_SHAPER_MZV
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
@@ -1189,7 +1189,7 @@
                                                 //     smoothing acceleration peaks, which may also smooth curved surfaces.
   #endif
 
-  #define FTM_POLYS                             // Disable POLY5/6 to save ~3k of Flash. Preserves TRAPEZOIDAL.
+  //#define FTM_POLYS                             // Disable POLY5/6 to save ~3k of Flash. Preserves TRAPEZOIDAL.
   #if ENABLED(FTM_POLYS)
     #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
   #endif
@@ -1199,15 +1199,15 @@
    * Jolt is the rate of change of acceleration, not related to Marlin's "classic jerk."
    * Ramps acceleration gradually so max acceleration is limited by max speed and distance traveled.
    */
-  //#define FTM_CONSTANT_JOLT
+  #define FTM_CONSTANT_JOLT
   #if ENABLED(FTM_CONSTANT_JOLT)
-    #define FTM_DEFAULT_JOLT 250.0f         // (m/s³) Default jolt for constant-jolt trajectory.
+    #define FTM_DEFAULT_JOLT 50.0f         // (m/s³) Default jolt for constant-jolt trajectory.
                                             // Higher values print faster at the cost of increased resonance and extruder stress
   #endif
 
   // Block acceleration profile
   // :[ 'TRAPEZOIDAL', 'POLY5', 'POLY6', 'CONSTANT_JOLT' ]
-  #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL   //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+  #define FTM_TRAJECTORY_TYPE CONSTANT_JOLT   //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
                                             //         POLY5: Like POLY6 with 1.5x but uses less CPU. Requires FTM_POLYS.
                                             //         POLY6: Continuous Acceleration (aka S_CURVE). Requires FTM_POLYS.
                                             // CONSTANT_JOLT: 7-phase S-curve. Requires FTM_CONSTANT_JOLT.
@@ -2393,7 +2393,7 @@
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
 //#define LIN_ADVANCE
-#if ENABLED(LIN_ADVANCE)
+#if ANY(LIN_ADVANCE, FT_MOTION)
   #if ENABLED(DISTINCT_E_FACTORS)
     #define ADVANCE_K { 0.22 }    // (mm) Compression length per 1mm/s extruder speed, per extruder
   #else
