@@ -1413,7 +1413,7 @@ void Motion::restore_feedrate_and_scaling() {
 
   void Motion::handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
     #if ENABLED(ABORT_ON_ENDSTOP)
-      if (planner.abort_on_endstop) {
+      if (planner.abort_on_sw_endstop) {
         if (target_pos[axis] < soft_endstop.min[axis]) {
           NOLESS(target_pos[axis], soft_endstop.min[axis]);
           SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);
@@ -1435,7 +1435,7 @@ void Motion::restore_feedrate_and_scaling() {
 
   void Motion::handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
     #if ENABLED(ABORT_ON_ENDSTOP)
-      if (planner.abort_on_endstop) {
+      if (planner.abort_on_sw_endstop) {
         if (target_pos[axis] > soft_endstop.max[axis]) {
           NOMORE(target_pos[axis], soft_endstop.max[axis]);
           SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);

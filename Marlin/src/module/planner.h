@@ -630,6 +630,7 @@ class Planner {
 
     #if ENABLED(ABORT_ON_ENDSTOP)
       static bool abort_on_endstop;
+      static bool abort_on_sw_endstop;
     #endif
 
     #ifdef XY_FREQUENCY_LIMIT
