@@ -2014,9 +2014,11 @@
 #endif
 
 /**
- * Allow aborting machining when any software endstop or limit switch is triggered.
- * This feature is enabled with 'M210 S1 H1' or 'M221 S1 H1' or from the LCD menu.
- * Software endstops and/or hardware endstops must be activated for this option to work.
+ * Abort printing when any software- or hardware endstop is triggered.
+ * Abort on software endstops is enabled with 'M211 H1' or from the LCD menu.
+ * Software endstops must be activated for this option to work.
+ * Abort on hardware endstops is enabled with 'M120 H1' or from the LCD menu.
+ * Endstops must be activated for this option to work.
  */
 #define ABORT_ON_ENDSTOP
 

@@ -2100,15 +2100,17 @@
 #endif
 
 #if ANY(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
-  /**
-   * Abort printing when any software endstop is triggered.
-   * This feature is enabled with 'M211 H1' or from the LCD menu.
-   * Software endstops must be activated for this option to work.
-   */
-  #define ABORT_ON_ENDSTOP
-
   //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
 #endif
+
+/**
+ * Abort printing when any software- or hardware endstop is triggered.
+ * Abort on software endstops is enabled with 'M211 H1' or from the LCD menu.
+ * Software endstops must be activated for this option to work.
+ * Abort on hardware endstops is enabled with 'M120 H1' or from the LCD menu.
+ * Endstops must be activated for this option to work.
+ */
+ #define ABORT_ON_ENDSTOP
 
 /**
  * Filament Runout Sensors
