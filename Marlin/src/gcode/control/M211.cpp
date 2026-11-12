@@ -52,7 +52,7 @@ void GcodeSuite::M211() {
     motion.soft_endstop._enabled = parser.value_bool();
   #if ENABLED(ABORT_ON_ENDSTOP)
     if (parser.seen('H'))
-      planner.abort_on_endstop = parser.value_bool();
+      planner.abort_on_sw_endstop = parser.value_bool();
   #endif
   if (!(parser.seen('S') || TERN0(ABORT_ON_ENDSTOP, parser.seen('H'))))
     M211_report();
