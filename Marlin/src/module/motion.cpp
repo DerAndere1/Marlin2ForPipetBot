@@ -1527,27 +1527,29 @@ void Motion::restore_feedrate_and_scaling() {
       SERIAL_ECHOLNPGM("Axis ", C(AXIS_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
   }
 
-
   void Motion::handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
     #if ENABLED(ABORT_ON_ENDSTOP)
       if (planner.abort_on_sw_endstop) {
         if (target_pos[axis] < soft_endstop.min[axis]) {
-          NOLESS(target_pos[axis], soft_endstop.min[axis]);
           SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);
           quickstop_stepper();
           #if HAS_CUTTER
             TERN_(SPINDLE_FEATURE, safe_delay(1000));
             cutter.kill();
           #endif
+          queue.clear();
+          #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
+            queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
+          #endif
           marlin.stop();
+          }
         }
-      }
-      else {
+        else {
+          NOLESS(target_pos[axis], soft_endstop.min[axis]);
+        }
+      #else
         NOLESS(target_pos[axis], soft_endstop.min[axis]);
-    }
-    #else
-      NOLESS(target_pos[axis], soft_endstop.min[axis]);
-    #endif
+      #endif
   }
 
   void Motion::handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
@@ -1560,6 +1562,10 @@ void Motion::restore_feedrate_and_scaling() {
           #if HAS_CUTTER
             TERN_(SPINDLE_FEATURE, safe_delay(1000));
             cutter.kill();
+          #endif
+          queue.clear();
+          #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
+            queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
           #endif
           marlin.stop();
         }
