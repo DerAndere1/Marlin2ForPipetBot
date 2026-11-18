@@ -2002,13 +2002,16 @@
 #endif
 
 /**
- * Abort printing when any software- or hardware endstop is triggered.
- * Abort on software endstops is enabled with 'M211 H1' or from the LCD menu.
- * Software endstops must be activated for this option to work.
- * Abort on hardware endstops is enabled with 'M120 H1' or from the LCD menu.
- * Endstops must be activated for this option to work.
+ * Abort machining when any limit switch is triggered.
+ * Hardware endstops must be activated for this option to work.
  */
 #define ABORT_ON_ENDSTOP
+
+/**
+ * Abort machining when any software endstop is triggered.
+ * Software endstops must be activated for this option to work.
+ */
+#define ABORT_ON_SOFTWARE_ENDSTOP
 
 /**
  * Filament Runout Sensors
