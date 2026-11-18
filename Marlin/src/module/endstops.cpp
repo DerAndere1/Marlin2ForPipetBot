@@ -67,11 +67,11 @@
   #include "probe.h"
 #endif
 
-#if ENABLED(ABORT_ON_ENDSTOP)
+#if ENABLED(ABORT_ON_ENDSTOP_HIT)
   #include "printcounter.h" // for print_job_timer
 #endif
 
-#if ANY(SD_ABORT_ON_ENDSTOP_HIT, ABORT_ON_ENDSTOP) && HAS_CUTTER
+#if ANY(SD_ABORT_ON_ENDSTOP_HIT, ABORT_ON_ENDSTOP_HIT) && HAS_CUTTER
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -379,7 +379,7 @@ void Endstops::event_handler() {
         print_job_timer.stop();
       }
 
-    #elif ENABLED(ABORT_ON_ENDSTOP)
+    #elif ENABLED(ABORT_ON_ENDSTOP_HIT)
       if (TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, !z_probe_enabled) && TERN1(G38_PROBE_TARGET, !G38_move.type) && TERN1(CALIBRATION_GCODE, !calibration_probe_enabled)) {
         motion.quickstop_stepper();
         queue.clear();
